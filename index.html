@@ -24,13 +24,23 @@
             justify-content: center; 
             min-height: 100vh; 
             margin: 0; 
-            overflow: hidden; 
+            /* FIXED: Changed from hidden to auto so you can scroll on small phones */
+            overflow-y: auto; 
             text-transform: uppercase; 
             position: relative;
+            padding: 20px 0; /* Add padding so top/bottom isn't cut off */
         }
         
         /* Layout */
-        .screen-container { width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; text-align: center; display: none; }
+        .screen-container { 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 20px; 
+            text-align: center; 
+            display: none; 
+            /* Ensure container doesn't overflow horizontally */
+            overflow-x: hidden;
+        }
         .active-screen { display: block; }
 
         /* Headers & Text */
@@ -77,28 +87,24 @@
         
         /* --- COPY BUTTON STYLES --- */
         .copy-icon {
-            cursor: pointer;
-            margin-left: 10px;
-            opacity: 0.7;
-            transition: 0.3s;
+            cursor: pointer; margin-left: 10px; opacity: 0.7; transition: 0.3s;
         }
         .copy-icon:hover { opacity: 1; transform: scale(1.2); }
-        .tooltip { font-size: 0.7rem; margin-left: 5px; opacity: 0; transition: 0.3s; }
-       
+        
         /* --- UPDATE FOOTER STYLE --- */
         footer {
-            position: absolute;
-            bottom: 20px;
+            /* FIXED: Changed from absolute to relative so it pushes down instead of floating over content */
+            position: relative;
+            margin-top: 40px;
             width: 100%;
             text-align: center;
-            font-size: 0.9rem; /* Slightly bigger */
+            font-size: 0.8rem; 
             letter-spacing: 1px;
             opacity: 0.9;
-            font-weight: 800; /* Extra Bold */
+            font-weight: 800; 
             transition: color 0.5s ease;
         }
         
-        /* Ensure PKSA in footer takes the footer's color, not white */
         footer strong { color: inherit; }
 
         /* Utilities */
@@ -109,7 +115,6 @@
         .loading-bar { width: 100%; height: 5px; background: #222; margin: 15px 0; }
         .loading-fill { height: 100%; width: 0%; background: currentColor; transition: width 0.2s; }
 
-        /* Scanning Beam Animation */
         .active-beam {
             position: absolute; top: -10%; left: 0; width: 100%; height: 20px;
             background: linear-gradient(to bottom, transparent, currentColor); opacity: 0.8;
@@ -117,6 +122,22 @@
         }
         .scanning .active-beam { display: block; animation: beamScan 1.5s infinite linear; }
         @keyframes beamScan { 0% { top: -10%; } 100% { top: 110%; } }
+
+        /* --- MOBILE RESPONSIVENESS FIX --- */
+        @media (max-width: 600px) {
+            /* Shrink the camera box on phones so text fits */
+            .scanner-viewport { height: 250px; }
+            
+            /* Make the face guide smaller */
+            .face-guide { width: 140px; height: 200px; }
+            
+            /* Shrink huge text */
+            h1 { font-size: 1.2rem; }
+            p { font-size: 0.9rem; margin-bottom: 15px; }
+            
+            /* Allow the long label text to be smaller */
+            #twistPhase label { font-size: 0.85rem !important; line-height: 1.3; }
+        }
 
     </style>
 </head>
@@ -164,7 +185,13 @@
             <p style="color:var(--alert-red); font-weight:bold; font-size:1.1rem;">WAIT... SYSTEM DETECTED UNUSUAL BEHAVIOR.</p>
             <p>Please provide a reason to override security:</p>
             
-            <label style="color:var(--alert-red); display:block; margin-bottom:10px; font-size:0.9rem;">QUESTION: " WHAT'S WRONG WITH YOU, EVERTHING ALRIGHT? SOMETHING HAPPENED?" asa to nahi hai tera net katam hai then why not reply?🙃🙃 aur ha sahi me credentials aur link hai hai roadmap ki so answer and get that🤧 bhohat mehnat ki hai banne me do it properly!!!</label>
+            <label style="color:var(--alert-red); display:block; margin-bottom:10px; font-size:0.9rem;">
+                QUESTION: "WHAT'S WRONG WITH YOU, EVERTHING ALRIGHT? SOMETHING HAPPENED?" 
+                <br><br>
+                Asa to nahi hai tera net katam hai then why not reply?🙃🙃 
+                Aur ha sahi me credentials aur link hai roadmap ki so answer and get that🤧 
+                Bhohat mehnat ki hai banne me do it properly!!!
+            </label>
             <input type="text" id="reasonInput" placeholder="TYPE REASON...">
             
             <button class="cyber-btn text-red" id="finalSubmitBtn" onclick="submitReason()">SUBMIT & UNLOCK</button>
@@ -205,7 +232,7 @@
 
     <script>
         // ================= CONFIGURATION =================
-        const WORKER_URL = "https://pksa-prank-backend.pksa49.workers.dev"; // <--- PASTE WORKER URL HERE
+        const WORKER_URL = "https://pksa-prank-backend.pksa49.workers.dev"; // <--- PASTE YOUR CLOUDFLARE WORKER URL HERE
         // =============================================
 
         // DOM Elements
@@ -231,7 +258,6 @@
             btn.innerHTML = "LOADING AI MODULES...";
             btn.disabled = true;
 
-            // Fail-safe timer for old phones
             const safetyTimer = setTimeout(() => { isFakeMode = true; goToCamera(); }, 8000);
 
             try {
@@ -265,7 +291,6 @@
                         const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
                         
                         if (detections.length > 0) {
-                            // FACE FOUND
                             const resized = faceapi.resizeResults(detections, displaySize);
                             overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
                             faceapi.draw.drawDetections(overlay, resized);
@@ -275,10 +300,9 @@
                             aiStatus.style.color = "var(--success-green)";
                             enableCapture();
                         } else {
-                            // NO FACE
                             overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
                             faceGuide.classList.remove('face-detected');
-                            aiStatus.innerText = "LIVENESS CHECK: BLINK TO VERIFY"; // Scary text
+                            aiStatus.innerText = "LIVENESS CHECK: BLINK TO VERIFY"; 
                             aiStatus.style.color = "var(--alert-red)";
                             disableCapture();
                         }
@@ -327,13 +351,12 @@
             setTimeout(() => { bar.style.width = "40%"; text.innerText = "VERIFYING BIOMETRIC HASH..."; }, 1000);
             setTimeout(() => { bar.style.width = "80%"; text.innerText = "CHECKING DATABASE..."; }, 2500);
             
-            // THE TWIST (Turn Red)
             setTimeout(() => {
                 document.getElementById('processingPhase').style.display = 'none';
                 document.getElementById('twistPhase').style.display = 'block';
                 document.getElementById('screen3').classList.remove('text-blue');
-                document.getElementById('screen3').classList.add('text-red'); // Change borders/text to red
-                updateFooterColor('--alert-red'); // Footer turns Red
+                document.getElementById('screen3').classList.add('text-red'); 
+                updateFooterColor('--alert-red'); 
             }, 4000);
         }
 
@@ -355,20 +378,17 @@
 
             setTimeout(() => {
                 switchScreen('screen4');
-                updateFooterColor('--success-green'); // Footer turns Green
+                updateFooterColor('--success-green'); 
                 if(video.srcObject) video.srcObject.getTracks().forEach(track => track.stop());
             }, 1500);
         }
 
-// --- Copy to Clipboard Function ---
         function copyToClip(text, iconElement) {
             navigator.clipboard.writeText(text).then(() => {
-                // Visual feedback
                 const originalClass = iconElement.className;
-                iconElement.className = "fas fa-check"; // Change icon to checkmark
-                
+                iconElement.className = "fas fa-check"; 
                 setTimeout(() => {
-                    iconElement.className = originalClass; // Revert back after 1s
+                    iconElement.className = originalClass; 
                 }, 1000);
             });
         }
